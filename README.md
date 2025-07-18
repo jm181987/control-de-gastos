@@ -1,5 +1,5 @@
-📊 Control de Gastos del Hogar - Gugui
-https://via.placeholder.com/300x600/4361ee/ffffff?text=Control+Gastos
+📊 Control de Gastos del Hogar - by Gugui
+
 Aplicación web para gestión de finanzas personales
 
 
