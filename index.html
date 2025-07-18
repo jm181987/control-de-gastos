@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Gastos del Hogar | by Gugui</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --white: #ffffff;
+            --income: #2ecc71;
+            --expense: #e74c3c;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0px;
+            padding: 0;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+    .hide-on-mobile {
+        display: none;
+    }
+}
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            padding: 0;
+            margin: 0;
+        }
+        .table-responsive {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch; /* Mejor desplazamiento en iOS */
+}
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        h1, h2, h3, h4 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--white);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--gray-light);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+            background-color: var(--primary);
+            color: var(--white);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #e5177a;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background-color: #e68a1a;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+        }
+
+        .btn-success:hover {
+            background-color: #3ab5d8;
+        }
+
+        .btn-secondary {
+            background-color: var(--gray);
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .income {
+            color: var(--income);
+        }
+
+        .expense {
+            color: var(--expense);
+        }
+
+        .balance {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-top: 1rem;
+        }
+
+        .positive {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--income);
+        }
+
+        .negative {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--expense);
+        }
+
+        table {
+            width: 100%;
+                overflow-x: auto;
+    min-width: 600px; /* Evita que se comprima demasiado */
+
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        th {
+            background-color: var(--primary);
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 50rem;
+        }
+
+        .badge-income {
+            color: var(--white);
+            background-color: var(--income);
+        }
+
+        .badge-expense {
+            color: var(--white);
+            background-color: var(--expense);
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Estilos para la gráfica */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification-success {
+            background-color: var(--income);
+            color: white;
+        }
+
+        .notification-error {
+            background-color: var(--expense);
+            color: white;
+        }
+
+        .notification-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .notification-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span>Control financiero del hogar - by Gugui</span>
+            </div>
+            <div id="current-date" style="font-weight: 500;"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="grid">
+            <!-- Panel de Nueva Transacción -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h3>Nueva Transacción</h3>
+                    <span class="card-icon">➕</span>
+                </div>
+                <form id="transaccionForm">
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" required>
+                            <option value="" disabled selected>Selecciona tipo</option>
+                            <option value="ingreso">Ingreso</option>
+                            <option value="gasto">Gasto</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descripcion">Descripción</label>
+                        <input type="text" id="descripcion" placeholder="Ej: Salario, Supermercado..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="monto">Monto</label>
+                        <input type="number" id="monto" placeholder="0.00" min="0" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoria">Categoría</label>
+                        <select id="categoria" required>
+                            <option value="" disabled selected>Selecciona categoría</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fecha">Fecha</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-success">
+                        <span>Agregar Transacción</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Panel de Resumen -->
+            <div class="card fade-in" style="animation-delay: 0.1s;">
+                <div class="card-header">
+                    <h3>Resumen Financiero</h3>
+                    <span class="card-icon">📊</span>
+                </div>
+                
+                <div class="summary-card">
+                    <div>
+                        <p>Total Ingresos</p>
+                        <p class="summary-value income" id="totalIngresos">$0.00</p>
+                    </div>
+                    
+                    <div>
+                        <p>Total Gastos</p>
+                        <p class="summary-value expense" id="totalGastos">$0.00</p>
+                    </div>
+                    
+                    <div class="balance" id="saldo">$0.00</div>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filtroTipo">Filtrar por tipo</label>
+                        <select id="filtroTipo">
+                            <option value="todos">Todos los tipos</option>
+                            <option value="ingreso">Ingresos</option>
+                            <option value="gasto">Gastos</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filtroCategoria">Filtrar por categoría</label>
+                        <select id="filtroCategoria">
+                            <option value="todas">Todas las categorías</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="filtroMes">Filtrar por mes</label>
+                        <input type="month" id="filtroMes">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="btnFiltrar" class="btn-secondary btn-sm">Aplicar Filtros</button>
+                    <button id="btnReset" class="btn-warning btn-sm">Resetear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfica de Ingresos vs Gastos -->
+        <div class="card fade-in" style="animation-delay: 0.15s;">
+            <div class="card-header">
+                <h3>Comparación Ingresos vs Gastos</h3>
+                <span class="card-icon">📈</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="incomeExpenseChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Panel de Historial -->
+        <div class="card fade-in" style="animation-delay: 0.2s;">
+            <div class="card-header">
+                <h3>Historial de Transacciones</h3>
+                <span class="card-icon">📋</span>
+            </div>
+           <div class="table-responsive">
+   
+
+            <table id="tablaTransacciones">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas se llenarán con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+</div> 
+        <!-- Panel de Importar/Exportar -->
+        <div class="card fade-in" style="animation-delay: 0.3s;">
+            <div class="card-header">
+                <h3>Importar/Exportar Datos</h3>
+                <span class="card-icon">💾</span>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                <button id="btnExportarPDF" class="btn-secondary">
+                    <span>Exportar a PDF</span>
+                </button>
+                
+                              
+                <button id="btnExportarJSON" class="btn-secondary">
+                    <span>Exportar a JSON</span>
+                </button>
+                
+                <button id="btnImportarJSON" class="btn-secondary">
+                    <span>Importar desde JSON</span>
+                </button>
+                <input type="file" id="jsonInput" class="file-input" accept=".json">
+            </div>
+        </div>
+    </div>
+
+    <!-- Bibliotecas para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+
+    <script>
+        // Configurar pdf.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+
+        // Categorías predefinidas
+        const categorias = {
+            ingreso: ['Salario', 'Ventas', 'Regalos', 'Inversiones', 'Otros ingresos'],
+            gasto: ['Alimentos', 'Vivienda', 'Transporte', 'Entretenimiento', 'Salud', 'Educación', 'Servicios', 'Ropa', 'Otros gastos']
+        };
+
+        // Obtener elementos del DOM
+        const transaccionForm = document.getElementById('transaccionForm');
+        const tipoSelect = document.getElementById('tipo');
+        const categoriaSelect = document.getElementById('categoria');
+        const descripcionInput = document.getElementById('descripcion');
+        const montoInput = document.getElementById('monto');
+        const fechaInput = document.getElementById('fecha');
+        const totalIngresosSpan = document.getElementById('totalIngresos');
+        const totalGastosSpan = document.getElementById('totalGastos');
+        const saldoDiv = document.getElementById('saldo');
+        const tablaTransacciones = document.getElementById('tablaTransacciones').getElementsByTagName('tbody')[0];
+        const filtroTipo = document.getElementById('filtroTipo');
+        const filtroCategoria = document.getElementById('filtroCategoria');
+        const filtroMes = document.getElementById('filtroMes');
+        const btnFiltrar = document.getElementById('btnFiltrar');
+        const btnReset = document.getElementById('btnReset');
+        const currentDateElement = document.getElementById('current-date');
+        const btnExportarPDF = document.getElementById('btnExportarPDF');
+        const btnImportarPDF = document.getElementById('btnImportarPDF');
+        const pdfInput = document.getElementById('pdfInput');
+        const btnExportarJSON = document.getElementById('btnExportarJSON');
+        const btnImportarJSON = document.getElementById('btnImportarJSON');
+        const jsonInput = document.getElementById('jsonInput');
+        const incomeExpenseChartCanvas = document.getElementById('incomeExpenseChart');
+
+        // Variables para la gráfica
+        let incomeExpenseChart;
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fecha actual por defecto
+            const hoy = new Date();
+            fechaInput.valueAsDate = hoy;
+            
+            // Mostrar fecha actual en el header
+            updateCurrentDate();
+            
+            // Cargar transacciones del almacenamiento local
+            cargarTransacciones();
+            
+            // Actualizar resumen
+            actualizarResumen();
+            
+            // Actualizar tabla
+            actualizarTabla();
+            
+            // Configurar evento para cambio de tipo
+            tipoSelect.addEventListener('change', actualizarCategorias);
+            
+            // Configurar evento para el formulario
+            transaccionForm.addEventListener('submit', agregarTransaccion);
+            
+            // Configurar eventos para los filtros
+            btnFiltrar.addEventListener('click', aplicarFiltros);
+            btnReset.addEventListener('click', resetearFiltros);
+            
+            // Inicializar filtro de mes con el mes actual
+            const mesActual = hoy.toISOString().slice(0, 7);
+            filtroMes.value = mesActual;
+            
+            // Llenar categorías de filtro
+            llenarCategoriasFiltro();
+            
+            // Configurar eventos para importar/exportar
+            btnExportarPDF.addEventListener('click', exportarAPDF);
+            btnExportarJSON.addEventListener('click', exportarAJSON);
+            btnImportarJSON.addEventListener('click', () => jsonInput.click());
+            jsonInput.addEventListener('change', importarDeJSON);
+
+            // Inicializar gráfica
+            inicializarGrafica();
+        });
+
+        // Función para inicializar la gráfica
+        function inicializarGrafica() {
+            const ctx = incomeExpenseChartCanvas.getContext('2d');
+            
+            incomeExpenseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ingresos', 'Gastos'],
+                    datasets: [{
+                        label: 'Monto',
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('es-AR', {
+                                        style: 'currency',
+                                        currency: 'ARS'
+                                    }).format(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += new Intl.NumberFormat('es-AR', {
+                                        style: 'currency',
+                                        currency: 'ARS'
+                                    }).format(context.raw);
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            actualizarGrafica();
+        }
+
+        // Función para actualizar la gráfica con los datos actuales
+        function actualizarGrafica() {
+            const transacciones = cargarTransacciones();
+            
+            let totalIngresos = 0;
+            let totalGastos = 0;
+            
+            transacciones.forEach(transaccion => {
+                if (transaccion.tipo === 'ingreso') {
+                    totalIngresos += transaccion.monto;
+                } else {
+                    totalGastos += transaccion.monto;
+                }
+            });
+            
+            incomeExpenseChart.data.datasets[0].data = [totalIngresos, totalGastos];
+            incomeExpenseChart.update();
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'info') {
+            // Eliminar notificaciones anteriores
+            const oldNotifications = document.querySelectorAll('.notification');
+            oldNotifications.forEach(notification => notification.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Eliminar después de 3 segundos
+            setTimeout(() => {
+                notification.style.animation = 'fadeIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Función para actualizar la fecha actual en el header
+        function updateCurrentDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            currentDateElement.textContent = new Date().toLocaleDateString('es-ES', options);
+        }
+
+        // Función para actualizar las categorías según el tipo seleccionado
+        function actualizarCategorias() {
+            const tipo = tipoSelect.value;
+            categoriaSelect.innerHTML = '<option value="" disabled selected>Selecciona categoría</option>';
+            
+            if (tipo && categorias[tipo]) {
+                categorias[tipo].forEach(categoria => {
+                    const option = document.createElement('option');
+                    option.value = categoria;
+                    option.textContent = categoria;
+                    categoriaSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Función para llenar las categorías en el filtro
+        function llenarCategoriasFiltro() {
+            filtroCategoria.innerHTML = '<option value="todas">Todas las categorías</option>';
+            
+            // Combinar todas las categorías únicas
+            const todasCategorias = [...new Set([...categorias.ingreso, ...categorias.gasto])];
+            
+            todasCategorias.forEach(categoria => {
+                const option = document.createElement('option');
+                option.value = categoria;
+                option.textContent = categoria;
+                filtroCategoria.appendChild(option);
+            });
+        }
+
+        // Función para agregar una nueva transacción
+        function agregarTransaccion(e) {
+            e.preventDefault();
+            
+            const transaccion = {
+                id: Date.now(),
+                tipo: tipoSelect.value,
+                descripcion: descripcionInput.value,
+                monto: parseFloat(montoInput.value),
+                categoria: categoriaSelect.value,
+                fecha: fechaInput.value
+            };
+            
+            // Validar monto positivo
+            if (transaccion.monto <= 0 || isNaN(transaccion.monto)) {
+                showNotification('El monto debe ser mayor que cero', 'error');
+                return;
+            }
+            
+            // Validar categoría seleccionada
+            if (!transaccion.categoria) {
+                showNotification('Debes seleccionar una categoría', 'error');
+                return;
+            }
+            
+            // Obtener transacciones existentes
+            let transacciones = cargarTransacciones();
+            
+            // Agregar nueva transacción
+            transacciones.push(transaccion);
+            
+            // Guardar en localStorage
+            localStorage.setItem('transacciones', JSON.stringify(transacciones));
+            
+            // Actualizar la interfaz
+            actualizarResumen();
+            actualizarTabla();
+            actualizarGrafica();
+            
+            // Resetear el formulario
+            transaccionForm.reset();
+            fechaInput.valueAsDate = new Date();
+            tipoSelect.value = '';
+            categoriaSelect.innerHTML = '<option value="" disabled selected>Selecciona categoría</option>';
+            
+            // Mostrar notificación
+            showNotification('Transacción agregada correctamente', 'success');
+        }
+
+        // Función para cargar transacciones desde localStorage
+        function cargarTransacciones() {
+            const transacciones = localStorage.getItem('transacciones');
+            return transacciones ? JSON.parse(transacciones) : [];
+        }
+
+        // Función para actualizar el resumen financiero
+        function actualizarResumen() {
+            const transacciones = cargarTransacciones();
+            
+            let totalIngresos = 0;
+            let totalGastos = 0;
+            
+            transacciones.forEach(transaccion => {
+                if (transaccion.tipo === 'ingreso') {
+                    totalIngresos += transaccion.monto;
+                } else {
+                    totalGastos += transaccion.monto;
+                }
+            });
+            
+            const saldo = totalIngresos - totalGastos;
+            
+            // Formatear números con separadores de miles
+            totalIngresosSpan.textContent = formatearMoneda(totalIngresos);
+            totalGastosSpan.textContent = formatearMoneda(totalGastos);
+            
+            // Actualizar saldo
+            saldoDiv.textContent = formatearMoneda(Math.abs(saldo));
+            saldoDiv.className = 'balance';
+            
+            if (saldo >= 0) {
+                saldoDiv.classList.add('positive');
+                saldoDiv.textContent = `A favor: ${formatearMoneda(saldo)}`;
+            } else {
+                saldoDiv.classList.add('negative');
+                saldoDiv.textContent = `En contra: ${formatearMoneda(Math.abs(saldo))}`;
+            }
+        }
+
+        // Función para formatear moneda
+        function formatearMoneda(monto) {
+            return new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS'
+            }).format(monto);
+        }
+
+        // Función para actualizar la tabla de transacciones
+        function actualizarTabla(filtros = {}) {
+            const transacciones = cargarTransacciones();
+            tablaTransacciones.innerHTML = '';
+            
+            // Aplicar filtros si existen
+            let transaccionesFiltradas = transacciones;
+            
+            if (filtros.tipo && filtros.tipo !== 'todos') {
+                transaccionesFiltradas = transaccionesFiltradas.filter(t => t.tipo === filtros.tipo);
+            }
+            
+            if (filtros.categoria && filtros.categoria !== 'todas') {
+                transaccionesFiltradas = transaccionesFiltradas.filter(t => t.categoria === filtros.categoria);
+            }
+            
+            if (filtros.mes) {
+                transaccionesFiltradas = transaccionesFiltradas.filter(t => t.fecha.startsWith(filtros.mes));
+            }
+            
+            // Ordenar por fecha (más reciente primero)
+            transaccionesFiltradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            
+            // Llenar la tabla
+            if (transaccionesFiltradas.length === 0) {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `<td colspan="6" style="text-align: center; padding: 2rem;">No hay transacciones para mostrar</td>`;
+                tablaTransacciones.appendChild(fila);
+            } else {
+                transaccionesFiltradas.forEach(transaccion => {
+                    const fila = document.createElement('tr');
+                    
+                    // Formatear fecha
+                    const fecha = new Date(transaccion.fecha);
+                    const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    
+                    // Determinar clase para el tipo
+                    const tipoClase = transaccion.tipo === 'ingreso' ? 'badge-income' : 'badge-expense';
+                    const tipoTexto = transaccion.tipo === 'ingreso' ? 'Ingreso' : 'Gasto';
+                    
+                    fila.innerHTML = `
+                        <td>${fechaFormateada}</td>
+                        <td>${transaccion.descripcion}</td>
+                        <td>${transaccion.categoria}</td>
+                        <td><span class="badge ${tipoClase}">${tipoTexto}</span></td>
+                        <td>${formatearMoneda(transaccion.monto)}</td>
+                        <td class="actions">
+                            <button class="eliminar btn-danger btn-sm" data-id="${transaccion.id}">Eliminar</button>
+                        </td>
+                    `;
+                    
+                    tablaTransacciones.appendChild(fila);
+                });
+            }
+            
+            // Configurar eventos para los botones de eliminar
+            document.querySelectorAll('.eliminar').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    eliminarTransaccion(id);
+                });
+            });
+        }
+
+        // Función para eliminar una transacción
+        function eliminarTransaccion(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta transacción?')) {
+                let transacciones = cargarTransacciones();
+                transacciones = transacciones.filter(t => t.id !== id);
+                localStorage.setItem('transacciones', JSON.stringify(transacciones));
+                
+                actualizarResumen();
+                actualizarTabla();
+                actualizarGrafica();
+                
+                showNotification('Transacción eliminada', 'success');
+            }
+        }
+
+        // Función para aplicar filtros
+        function aplicarFiltros() {
+            const filtros = {
+                tipo: filtroTipo.value,
+                categoria: filtroCategoria.value,
+                mes: filtroMes.value || null
+            };
+            
+            actualizarTabla(filtros);
+            showNotification('Filtros aplicados', 'success');
+        }
+
+        // Función para resetear filtros
+        function resetearFiltros() {
+            filtroTipo.value = 'todos';
+            filtroCategoria.value = 'todas';
+            filtroMes.value = '';
+            actualizarTabla();
+            showNotification('Filtros reseteados', 'info');
+        }
+
+        // Función para exportar datos a PDF
+        async function exportarAPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Título
+            doc.setFontSize(18);
+            doc.setTextColor(40, 40, 40);
+            doc.text('Resumen de Gastos del Hogar - By Gugui', 105, 15, { align: 'center' });
+            
+            // Fecha de exportación
+            doc.setFontSize(12);
+            doc.text(`Exportado el: ${new Date().toLocaleDateString('es-ES')}`, 105, 25, { align: 'center' });
+            
+            // Resumen
+            doc.setFontSize(14);
+            doc.text('Resumen Financiero', 14, 35);
+            doc.setFontSize(12);
+            doc.setTextColor(46, 204, 113); // Verde
+            doc.text(`Total Ingresos: ${totalIngresosSpan.textContent}`, 20, 45);
+            doc.setTextColor(231, 76, 60); // Rojo
+            doc.text(`Total Gastos: ${totalGastosSpan.textContent}`, 20, 55);
+            doc.setTextColor(40, 40, 40);
+            doc.text(`Saldo: ${saldoDiv.textContent}`, 20, 65);
+            
+            // Transacciones
+            doc.setFontSize(14);
+            doc.text('Historial de Transacciones', 14, 80);
+            
+            // Encabezados de tabla
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Fecha', 14, 90);
+            doc.text('Descripción', 40, 90);
+            doc.text('Categoría', 90, 90);
+            doc.text('Tipo', 130, 90);
+            doc.text('Monto', 170, 90);
+            
+            // Datos de transacciones
+            doc.setFont(undefined, 'normal');
+            const transacciones = cargarTransacciones();
+            let yPos = 100;
+            
+            transacciones.forEach((trans, index) => {
+                if (yPos > 280 && index < transacciones.length - 1) {
+                    doc.addPage();
+                    yPos = 20;
+                    // Encabezados en nueva página
+                    doc.setFontSize(14);
+                    doc.text('Historial de Transacciones (continuación)', 14, yPos);
+                    yPos += 10;
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Fecha', 14, yPos);
+                    doc.text('Descripción', 40, yPos);
+                    doc.text('Categoría', 90, yPos);
+                    doc.text('Tipo', 130, yPos);
+                    doc.text('Monto', 170, yPos);
+                    yPos += 10;
+                    doc.setFont(undefined, 'normal');
+                }
+                
+                const fecha = new Date(trans.fecha).toLocaleDateString('es-ES');
+                doc.text(fecha, 14, yPos);
+                doc.text(trans.descripcion, 40, yPos);
+                doc.text(trans.categoria, 90, yPos);
+                
+                // Color según tipo
+                if (trans.tipo === 'ingreso') {
+                    doc.setTextColor(46, 204, 113);
+                } else {
+                    doc.setTextColor(231, 76, 60);
+                }
+                doc.text(trans.tipo === 'ingreso' ? 'Ingreso' : 'Gasto', 130, yPos);
+                doc.text(formatearMoneda(trans.monto), 170, yPos);
+                doc.setTextColor(40, 40, 40);
+                
+                yPos += 10;
+            });
+            
+            // Guardar PDF
+            const fechaExportacion = new Date().toISOString().slice(0, 10);
+            doc.save(`control_gastos_gugui_${fechaExportacion}.pdf`);
+            showNotification('PDF exportado correctamente', 'success');
+        }
+
+        // Función para importar datos desde PDF
+        async function importarDePDF(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                showNotification('Procesando PDF...', 'info');
+                
+                // Leer el archivo PDF con pdf.js
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument(arrayBuffer);
+                const pdf = await loadingTask.promise;
+                
+                let fullText = '';
+                // Extraer texto de todas las páginas
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const textItems = textContent.items.map(item => item.str);
+                    fullText += textItems.join(' ') + '\n';
+                }
+
+                // Parsear el texto para extraer transacciones
+                const transacciones = [];
+                const lines = fullText.split('\n');
+                let encontradoHistorial = false;
+
+                // Expresión regular mejorada para detectar transacciones
+                const transaccionRegex = /(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+([A-Za-záéíóúñÁÉÍÓÚÑ\s]+)\s+(Ingreso|Gasto)\s+(\$\d+[\.,]\d{2})/;
+
+                for (const line of lines) {
+                    if (line.includes('Historial de Transacciones')) {
+                        encontradoHistorial = true;
+                        continue;
+                    }
+
+                    if (encontradoHistorial) {
+                        const match = line.match(transaccionRegex);
+                        if (match) {
+                            const fecha = match[1];
+                            const descripcion = match[2];
+                            const categoria = match[3].trim();
+                            const tipo = match[4].toLowerCase();
+                            const monto = parseFloat(match[5].replace('$', '').replace(',', '.'));
+
+                            transacciones.push({
+                                id: Date.now() + Math.floor(Math.random() * 1000),
+                                tipo,
+                                descripcion,
+                                monto,
+                                categoria,
+                                fecha: convertirFechaPDF(fecha)
+                            });
+                        }
+                    }
+                }
+
+                if (transacciones.length > 0) {
+                    if (confirm(`Se encontraron ${transacciones.length} transacciones. ¿Deseas importarlas?`)) {
+                        // Guardar las nuevas transacciones junto con las existentes
+                        const transaccionesExistentes = cargarTransacciones();
+                        const todasTransacciones = [...transaccionesExistentes, ...transacciones];
+                        localStorage.setItem('transacciones', JSON.stringify(todasTransacciones));
+                        
+                        actualizarResumen();
+                        actualizarTabla();
+                        actualizarGrafica();
+                        showNotification(`${transacciones.length} transacciones importadas correctamente`, 'success');
+                    }
+                } else {
+                    showNotification('No se encontraron transacciones en el PDF. Asegúrate de que es un PDF exportado desde esta aplicación.', 'warning');
+                }
+
+                event.target.value = '';
+            } catch (error) {
+                console.error("Error al importar PDF:", error);
+                showNotification('Error al importar PDF. Asegúrate de que es un PDF válido exportado desde esta aplicación.', 'error');
+                event.target.value = '';
+            }
+        }
+
+        // Función para convertir fecha de PDF (dd/mm/aaaa) a formato YYYY-MM-DD
+        function convertirFechaPDF(fechaStr) {
+            const [dd, mm, yyyy] = fechaStr.split('/');
+            return `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+        }
+
+        // Función para exportar a JSON
+        function exportarAJSON() {
+            const transacciones = cargarTransacciones();
+            
+            if (transacciones.length === 0) {
+                showNotification('No hay transacciones para exportar', 'warning');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(transacciones, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const fechaExportacion = new Date().toISOString().slice(0, 10);
+            const exportFileDefaultName = `gastos_hogar_gugui_${fechaExportacion}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('JSON exportado correctamente', 'success');
+        }
+
+        // Función para importar desde JSON
+        function importarDeJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validar estructura del JSON
+                    if (!Array.isArray(data)) {
+                        throw new Error("El archivo JSON no contiene un array válido");
+                    }
+                    
+                    // Validar estructura de cada transacción
+                    const isValid = data.every(item => 
+                        item.id && item.tipo && item.descripcion && !isNaN(item.monto) && item.categoria && item.fecha
+                    );
+                    
+                    if (!isValid) {
+                        throw new Error("Estructura de datos incorrecta en el JSON");
+                    }
+
+                    const opcion = confirm(`¿Deseas añadir las ${data.length} transacciones a las existentes?\n(Cancelar para reemplazar todos los datos)`);
+                    
+                    if (opcion) {
+                        // Opción 1: Añadir a los datos existentes
+                        const transaccionesExistentes = cargarTransacciones();
+                        const todasTransacciones = [...transaccionesExistentes, ...data];
+                        localStorage.setItem('transacciones', JSON.stringify(todasTransacciones));
+                        showNotification(`${data.length} transacciones añadidas a las existentes`, 'success');
+                    } else {
+                        // Opción 2: Reemplazar datos existentes
+                        localStorage.setItem('transacciones', JSON.stringify(data));
+                        showNotification(`Base de datos reemplazada con ${data.length} transacciones`, 'success');
+                    }
+                    
+                    actualizarResumen();
+                    actualizarTabla();
+                    actualizarGrafica();
+                } catch (error) {
+                    console.error("Error al importar JSON:", error);
+                    showNotification(`Error: ${error.message}`, 'error');
+                }
+                event.target.value = '';
+            };
+            reader.onerror = function() {
+                showNotification("Error al leer el archivo", 'error');
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
