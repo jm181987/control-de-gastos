@@ -71,3 +71,6 @@ Exportar datos:
 Generar reporte PDF
 
 Exportar backup JSON
+
+📄 Licencia
+Este proyecto está bajo la licencia MIT. Ver LICENSE para más detalles.
